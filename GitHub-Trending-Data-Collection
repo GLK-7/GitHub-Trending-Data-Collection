@@ -1,0 +1,1006 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4fb1bc17",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007291,
+     "end_time": "2024-08-13T22:57:08.050200",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:08.042909",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# **GitHub-Trending Data Collection**\n",
+    "\n",
+    "---\n",
+    "\n",
+    "Autor: **Gabriel Lino**\n",
+    "\n",
+    "<div> \n",
+    "  <a href = \"mailto:gabriel.godoitb@gmail.com\"><img src=\"https://img.shields.io/badge/-Gmail-%23333?style=for-the-badge&logo=gmail&logoColor=white\" target=\"_blank\"></a>\n",
+    "  <a href=\"https://www.linkedin.com/in/glgodoi\" target=\"_blank\"><img src=\"https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white\" target=\"_blank\"></a>  \n",
+    "    <a href=\"https://github.com/GLK-7\" target=\"_blank\"><img src=\"https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white\" target=\"_blank\"></a>  \n",
+    "</div>\n",
+    "\n",
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "751d50d8",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007008,
+     "end_time": "2024-08-13T22:57:08.064446",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:08.057438",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# **Tópicos**\n",
+    "\n",
+    "<ol type=\"1\">\n",
+    "    <li>Contexto;</li>\n",
+    "    <li>Pacotes e Bibliotecas;</li>\n",
+    "    <li>Extração;</li>\n",
+    "    <li>Manipulação.</li>\n",
+    "    <li>Salvamento.</li>\n",
+    "</ol>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34d2ccfd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006544,
+     "end_time": "2024-08-13T22:57:08.078007",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:08.071463",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 1\\. Contexto\n",
+    "\n",
+    "<div style=\"display: flex; align-items: center;\">\n",
+    "    <div style=\"display: inline-block; background-color: white; border-radius: 10px; padding: 10px;\">\n",
+    "        <img width=\"180em\" src=\"https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original-wordmark.svg\" />\n",
+    "    </div>\n",
+    "    <p style=\"margin-left: 10px;\">\n",
+    "        O <a href=\"https://github.com/\">GitHub</a> é uma plataforma de hospedagem de código-fonte e desenvolvimento colaborativo que permite que desenvolvedores ao redor do mundo compartilhem e colaborem em projetos. Ele se destaca como um dos maiores repositórios de código aberto, onde projetos populares são frequentemente destacados na seção \"Trending\", que mostra os repositórios mais relevantes e ativos em determinado período.\n",
+    "    </p>\n",
+    "</div><br>\n",
+    "<p>\n",
+    "Neste projeto, realizaremos a coleta de dados da seção \"Trending\" do GitHub, utilizando técnicas de web crawling com Python. O objetivo é capturar informações sobre os repositórios em destaque, como nome, descrição, linguagem de programação utilizada, número de estrelas, entre outros. Os dados coletados serão organizados e salvos em um arquivo CSV, permitindo análises futuras sobre as tendências e popularidade de projetos no GitHub.</p>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5ed83541",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006608,
+     "end_time": "2024-08-13T22:57:08.091460",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:08.084852",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2\\. Pacotes e Bibliotecas\n",
+    "\n",
+    "Abaixo será feita a importação dos pacotes e bibliotecas utilizados nesse projeto."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "7a875cb4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:08.106930Z",
+     "iopub.status.busy": "2024-08-13T22:57:08.106509Z",
+     "iopub.status.idle": "2024-08-13T22:57:09.376685Z",
+     "shell.execute_reply": "2024-08-13T22:57:09.375361Z"
+    },
+    "papermill": {
+     "duration": 1.281348,
+     "end_time": "2024-08-13T22:57:09.379522",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:08.098174",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Importar Pacotes e Bibliotecas do Python\n",
+    "import requests\n",
+    "import pandas as pd\n",
+    "import csv\n",
+    "from bs4 import BeautifulSoup\n",
+    "from requests.exceptions import HTTPError"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "769a2ff3",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006702,
+     "end_time": "2024-08-13T22:57:09.393199",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:09.386497",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 3\\. Extração"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6b9cd37e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006398,
+     "end_time": "2024-08-13T22:57:09.406448",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:09.400050",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "#### Crawling\n",
+    "\n",
+    "Web crawling é uma técnica utilizada para coletar dados de sites automaticamente. Com Python, essa técnica envolve o uso de bibliotecas como `BeautifulSoup` e `requests` para acessar páginas da web, extrair informações relevantes e estruturar esses dados de forma organizada"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "022fcccd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006398,
+     "end_time": "2024-08-13T22:57:09.419533",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:09.413135",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "No código a seguir, primeiramente, é realizada a conexão com a página de \"Trending\" do GitHub. Em seguida, o conteúdo HTML da página é extraído e processado, sendo então analisado e armazenado na variável `pagina` utilizando a biblioteca `BeautifulSoup`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "133c9c66",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:09.434912Z",
+     "iopub.status.busy": "2024-08-13T22:57:09.434366Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.002981Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.001689Z"
+    },
+    "papermill": {
+     "duration": 1.579937,
+     "end_time": "2024-08-13T22:57:11.006242",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:09.426305",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Função para realizar o web crawl na página de Trendings do GitHub\n",
+    "def crawl_website(url: str, headers: dict) -> str:\n",
+    "    try:\n",
+    "        # Faz uma requisição GET à URL fornecida, usando os cabeçalhos especificados\n",
+    "        resposta = requests.get(url, headers=headers)\n",
+    "        \n",
+    "        # Verifica se houve algum erro na requisição, como um status code diferente de 200\n",
+    "        resposta.raise_for_status()\n",
+    "    except HTTPError as exc:\n",
+    "        # Se ocorrer um erro HTTP, imprime a exceção\n",
+    "        print(exc)\n",
+    "    else:\n",
+    "        # Se não houver erros, retorna o conteúdo da resposta (o HTML da página)\n",
+    "        return resposta.text\n",
+    "\n",
+    "# URL da página de Trendings do GitHub\n",
+    "URL = 'https://github.com/trending'\n",
+    "\n",
+    "# Cabeçalhos HTTP para imitar uma requisição feita por um navegador comum, o que ajuda a evitar bloqueios\n",
+    "HEADERS = {\n",
+    "    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',\n",
+    "    'Accept-Language': 'pt-BR,pt;q=0.9'  # Especifica a preferência de idioma para a resposta\n",
+    "}\n",
+    "\n",
+    "# Chama a função para realizar o crawl na URL especificada e armazena o conteúdo da página\n",
+    "conteudo = crawl_website(url=URL, headers=HEADERS)\n",
+    "\n",
+    "# Utiliza BeautifulSoup para fazer o parse (análise) do conteúdo HTML obtido\n",
+    "pagina = BeautifulSoup(conteudo, 'html.parser')\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "460e30a7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006509,
+     "end_time": "2024-08-13T22:57:11.019746",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.013237",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 4\\. Manipulação\n",
+    "\n",
+    "Nesta etapa, organizaremos os dados extraídos da página. Como os conteúdos estão distribuídos em diferentes elementos HTML, utilizaremos classes CSS específicas para localizar essas informações. Em seguida, iteraremos sobre as listas em Python para extrair e estruturar os dados de forma coerente."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d7d5824a",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006505,
+     "end_time": "2024-08-13T22:57:11.033106",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.026601",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "No código abaixo, os títulos e autores dos repositórios são capturados a partir de elementos `<h2>` da página. Após a extração, essas informações são armazenadas nas listas correspondentes para serem manipuladas posteriormente."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "1bda76a0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:11.048312Z",
+     "iopub.status.busy": "2024-08-13T22:57:11.047942Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.106434Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.105266Z"
+    },
+    "papermill": {
+     "duration": 0.069183,
+     "end_time": "2024-08-13T22:57:11.109025",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.039842",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Autores: \n",
+      " ['versotile-org', 'lllyasviel', 'shardeum', 'hacksider', 'ostris', 'dani-garcia', 'Raphire', 'erincatto', 'wez', 'electron', 'KRTirtho', 'rustdesk', 'NaiboWang', 'jrouwe', 'twbs', 'LLaVA-VL', 'thingsboard', 'Stirling-Tools', 'suno-ai', 'DroidKaigi']\n",
+      "\n",
+      "Títulos: \n",
+      " ['verso', 'stable-diffusion-webui-forge', 'shardeum', 'Deep-Live-Cam', 'ai-toolkit', 'vaultwarden', 'Win11Debloat', 'box2d', 'wezterm', 'electron', 'spotube', 'rustdesk', 'EasySpider', 'JoltPhysics', 'bootstrap', 'LLaVA-NeXT', 'thingsboard', 'Stirling-PDF', 'bark', 'conference-app-2024']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Inicializa as listas para armazenar os títulos dos repositórios e os nomes dos autores\n",
+    "titulos = []\n",
+    "autores = []\n",
+    "\n",
+    "# Encontra todos os elementos <h2> que contêm os projetos na página, utilizando a classe CSS específica\n",
+    "projects = pagina.find_all('h2', class_='h3 lh-condensed')\n",
+    "\n",
+    "# Itera sobre cada elemento <h2> encontrado\n",
+    "for h2 in projects:\n",
+    "    # Dentro de cada <h2>, encontra todos os elementos <a> que contêm os links para os repositórios, usando a classe CSS específica\n",
+    "    linhas = h2.find_all('a', class_='Link')\n",
+    "    \n",
+    "    # Itera sobre cada link <a> encontrado\n",
+    "    for linha in linhas:\n",
+    "        # Adiciona o título do repositório à lista 'titulos'\n",
+    "        # O texto é limpo removendo quebras de linha, separando o autor e o repositório por '/', e retirando espaços em branco\n",
+    "        titulos.append(linha.get_text().replace('\\n', \"\").split(\"/\")[1].strip(\" \"))\n",
+    "        \n",
+    "        # Adiciona o nome do autor à lista 'autores'\n",
+    "        # O processo é semelhante ao acima, mas captura a primeira parte do texto que contém o nome do autor\n",
+    "        autores.append(linha.get_text().replace('\\n', \"\").split(\"/\")[0].strip(\" \"))\n",
+    "\n",
+    "# Encontra todos os elementos <span> que contêm os nomes dos autores, usando a classe CSS específica\n",
+    "projectsAuthor = pagina.find_all('span', class_='text-normal')\n",
+    "\n",
+    "# Exibe a lista de autores capturados\n",
+    "print(\"Autores: \\n\", autores)\n",
+    "\n",
+    "# Exibe a lista de títulos capturados\n",
+    "print(\"\\nTítulos: \\n\", titulos)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3314cacf",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006792,
+     "end_time": "2024-08-13T22:57:11.122935",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.116143",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Agora, iremos coletar as informações de `stars` e `forks` dos repositórios. Esses dados estão localizados em elementos de link (`<a>`) dentro de elementos de artigo (`<article>`). Como ambos os valores estão no mesmo tipo de elemento, utilizamos uma verificação para identificar os caracteres numéricos. No entanto, isso inicialmente fez com que `stars` e `forks` fossem armazenados na mesma lista. Para resolver esse problema, intercalamos a iteração, alternando entre as listas. Usamos o índice da iteração para determinar se o valor deve ser adicionado à lista `forks` (quando o índice é par) ou à lista `stars` (quando o índice é ímpar)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "6b245b77",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:11.138665Z",
+     "iopub.status.busy": "2024-08-13T22:57:11.138231Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.172868Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.171594Z"
+    },
+    "papermill": {
+     "duration": 0.045688,
+     "end_time": "2024-08-13T22:57:11.175602",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.129914",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Stars: \n",
+      " [2353, 5986, 8718, 20365, 534, 35677, 10201, 7658, 15927, 113372, 27868, 70020, 32421, 6198, 168588, 1785, 16515, 37600, 34326, 214]\n",
+      "\n",
+      "Forks: \n",
+      " [85, 606, 169, 2647, 52, 1743, 432, 1484, 700, 15255, 1150, 7836, 3899, 398, 78590, 105, 5003, 2806, 4052, 86]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Encontra todos os elementos <article> que contêm as informações dos projetos,\n",
+    "projectsInfos = pagina.find_all('article', class_='Box-row')\n",
+    "\n",
+    "# Inicializa as listas para armazenar o número de estrelas e forks dos repositórios\n",
+    "stars = []\n",
+    "forks = []\n",
+    "\n",
+    "# Itera sobre cada <article> encontrado, que contém as informações dos projetos\n",
+    "for article in projectsInfos:\n",
+    "    # Dentro de cada <article>, encontra todos os elementos <a> que contêm links, utilizando a classe CSS específica\n",
+    "    linhas = article.find_all('a', class_='Link')\n",
+    "    \n",
+    "    # Itera sobre cada link <a> encontrado\n",
+    "    for i, linha in enumerate(linhas):\n",
+    "        # Extrai o texto do link, remove espaços em branco e vírgulas\n",
+    "        texto = linha.get_text().strip().replace(',', '') \n",
+    "        \n",
+    "        # Verifica se o texto não está vazio e se começa com um dígito (número)\n",
+    "        if texto and texto[0].isdigit():\n",
+    "            # Converte o texto para um número inteiro\n",
+    "            valor = int(texto)\n",
+    "            \n",
+    "            # Alterna entre adicionar o valor na lista 'forks' ou 'stars' com base no índice (par ou ímpar)\n",
+    "            (forks if i % 2 == 0 else stars).append(valor)\n",
+    "\n",
+    "# Exibe a lista de estrelas capturadas\n",
+    "print(\"Stars: \\n\", stars)\n",
+    "\n",
+    "# Exibe a lista de forks capturados\n",
+    "print(\"\\nForks: \\n\", forks)\n",
+    "\n",
+    " "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "df42859d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007191,
+     "end_time": "2024-08-13T22:57:11.190365",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.183174",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Nesta etapa, vamos capturar as estrelas recebidas hoje (`stars today`) de cada repositório. Esses dados serão extraídos de elementos com a tag `<span>` da classe `d-inline-block float-sm-right`. Após a extração, as informações serão armazenadas na lista `stars_today`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "75317764",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:11.208624Z",
+     "iopub.status.busy": "2024-08-13T22:57:11.207606Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.223911Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.222644Z"
+    },
+    "papermill": {
+     "duration": 0.02889,
+     "end_time": "2024-08-13T22:57:11.226617",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.197727",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Stars Today: \n",
+      " [668, 122, 1315, 3676, 92, 67, 409, 93, 198, 158, 342, 174, 137, 42, 25, 52, 10, 499, 49, 32]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Inicializa a lista para armazenar as estrelas recebidas hoje para cada repositório\n",
+    "stars_today = []\n",
+    "\n",
+    "# Itera sobre cada artigo (repositório) encontrado anteriormente em 'projectsInfos'\n",
+    "for article in projectsInfos:\n",
+    "    # Dentro de cada <article>, encontra todos os elementos <span> que contêm as estrelas de hoje,\n",
+    "    # utilizando a classe CSS específica\n",
+    "    linhas = article.find_all('span', class_='d-inline-block float-sm-right')\n",
+    "    \n",
+    "    # Itera sobre cada elemento <span> encontrado\n",
+    "    for linha in linhas:\n",
+    "        # Extrai o texto do elemento, removendo quebras de linha, espaços em branco e vírgulas\n",
+    "        # Em seguida, separa o texto pelo espaço em branco e pega o primeiro valor (número de estrelas)\n",
+    "        linha = linha.get_text().replace('\\n', \"\").strip().replace(\",\", \"\").split(\" \")[0]\n",
+    "        \n",
+    "        # Converte o texto do número de estrelas para um inteiro\n",
+    "        valor = int(linha)\n",
+    "        \n",
+    "        # Adiciona o valor (número de estrelas de hoje) à lista 'stars_today'\n",
+    "        stars_today.append(valor)\n",
+    "\n",
+    "# Exibe a lista de estrelas recebidas hoje capturadas\n",
+    "print(\"Stars Today: \\n\", stars_today)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e8fa00e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006936,
+     "end_time": "2024-08-13T22:57:11.240825",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.233889",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Continuando a coleta dos dados, agora capturaremos as linguagens de programação utilizadas nos projetos. Essas informações estão presentes em elementos `<span>` com a classe `d-inline-block ml-0 mr-3`, localizados dentro dos elementos `<article>`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "25e81676",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:11.257098Z",
+     "iopub.status.busy": "2024-08-13T22:57:11.256670Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.271896Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.270710Z"
+    },
+    "papermill": {
+     "duration": 0.026413,
+     "end_time": "2024-08-13T22:57:11.274465",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.248052",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['Rust', 'Python', 'TypeScript', 'Python', 'Python', 'Rust', 'PowerShell', 'C', 'Rust', 'C++', 'Dart', 'Rust', 'JavaScript', 'C++', 'JavaScript', 'Python', 'Java', 'Java', 'Jupyter Notebook', 'Kotlin']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Inicializa a lista para armazenar as linguagens de programação utilizadas nos projetos\n",
+    "languages = []\n",
+    "\n",
+    "# Itera sobre cada artigo (repositório) encontrado anteriormente em 'projectsInfos'\n",
+    "for article in projectsInfos:\n",
+    "    # Dentro de cada <article>, encontra todos os elementos <span> que contêm as linguagens,\n",
+    "    # utilizando a classe CSS específica\n",
+    "    linhas = article.find_all('span', class_='d-inline-block ml-0 mr-3')\n",
+    "    \n",
+    "    # Itera sobre cada elemento <span> encontrado\n",
+    "    for linha in linhas:\n",
+    "        # Extrai o texto do elemento, removendo quebras de linha e espaços em branco\n",
+    "        linha = linha.get_text().replace('\\n', \"\").strip()\n",
+    "        \n",
+    "        # Adiciona a linguagem de programação à lista 'languages'\n",
+    "        languages.append(linha)\n",
+    "\n",
+    "# Exibe a lista de linguagens de programação capturadas\n",
+    "print(languages)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "446dcca9",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00716,
+     "end_time": "2024-08-13T22:57:11.289787",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.282627",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Após concluir a coleta dos dados, agora vamos combinar as listas coletadas. Essas listas serão integradas em uma única variável e, em seguida, organizadas em um DataFrame do Pandas para facilitar a visualização da tabela. Além disso, será criado um índice chamado `rank` no DataFrame e ordenado pela quantidade de `stars` de forma decrescente e exibirá a posição de cada repositório."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "4f5ff6b2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:11.307018Z",
+     "iopub.status.busy": "2024-08-13T22:57:11.306223Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.352171Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.351046Z"
+    },
+    "papermill": {
+     "duration": 0.057471,
+     "end_time": "2024-08-13T22:57:11.354944",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.297473",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>rank</th>\n",
+       "      <th>author</th>\n",
+       "      <th>project</th>\n",
+       "      <th>language</th>\n",
+       "      <th>stars</th>\n",
+       "      <th>stars_today</th>\n",
+       "      <th>forks</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>1</td>\n",
+       "      <td>twbs</td>\n",
+       "      <td>bootstrap</td>\n",
+       "      <td>JavaScript</td>\n",
+       "      <td>168588</td>\n",
+       "      <td>25</td>\n",
+       "      <td>78590</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>2</td>\n",
+       "      <td>electron</td>\n",
+       "      <td>electron</td>\n",
+       "      <td>C++</td>\n",
+       "      <td>113372</td>\n",
+       "      <td>158</td>\n",
+       "      <td>15255</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>3</td>\n",
+       "      <td>rustdesk</td>\n",
+       "      <td>rustdesk</td>\n",
+       "      <td>Rust</td>\n",
+       "      <td>70020</td>\n",
+       "      <td>174</td>\n",
+       "      <td>7836</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>4</td>\n",
+       "      <td>Stirling-Tools</td>\n",
+       "      <td>Stirling-PDF</td>\n",
+       "      <td>Java</td>\n",
+       "      <td>37600</td>\n",
+       "      <td>499</td>\n",
+       "      <td>2806</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>5</td>\n",
+       "      <td>dani-garcia</td>\n",
+       "      <td>vaultwarden</td>\n",
+       "      <td>Rust</td>\n",
+       "      <td>35677</td>\n",
+       "      <td>67</td>\n",
+       "      <td>1743</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>6</td>\n",
+       "      <td>suno-ai</td>\n",
+       "      <td>bark</td>\n",
+       "      <td>Jupyter Notebook</td>\n",
+       "      <td>34326</td>\n",
+       "      <td>49</td>\n",
+       "      <td>4052</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>7</td>\n",
+       "      <td>NaiboWang</td>\n",
+       "      <td>EasySpider</td>\n",
+       "      <td>JavaScript</td>\n",
+       "      <td>32421</td>\n",
+       "      <td>137</td>\n",
+       "      <td>3899</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>8</td>\n",
+       "      <td>KRTirtho</td>\n",
+       "      <td>spotube</td>\n",
+       "      <td>Dart</td>\n",
+       "      <td>27868</td>\n",
+       "      <td>342</td>\n",
+       "      <td>1150</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>9</td>\n",
+       "      <td>hacksider</td>\n",
+       "      <td>Deep-Live-Cam</td>\n",
+       "      <td>Python</td>\n",
+       "      <td>20365</td>\n",
+       "      <td>3676</td>\n",
+       "      <td>2647</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>10</td>\n",
+       "      <td>thingsboard</td>\n",
+       "      <td>thingsboard</td>\n",
+       "      <td>Java</td>\n",
+       "      <td>16515</td>\n",
+       "      <td>10</td>\n",
+       "      <td>5003</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>11</td>\n",
+       "      <td>wez</td>\n",
+       "      <td>wezterm</td>\n",
+       "      <td>Rust</td>\n",
+       "      <td>15927</td>\n",
+       "      <td>198</td>\n",
+       "      <td>700</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>12</td>\n",
+       "      <td>Raphire</td>\n",
+       "      <td>Win11Debloat</td>\n",
+       "      <td>PowerShell</td>\n",
+       "      <td>10201</td>\n",
+       "      <td>409</td>\n",
+       "      <td>432</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>13</td>\n",
+       "      <td>shardeum</td>\n",
+       "      <td>shardeum</td>\n",
+       "      <td>TypeScript</td>\n",
+       "      <td>8718</td>\n",
+       "      <td>1315</td>\n",
+       "      <td>169</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>14</td>\n",
+       "      <td>erincatto</td>\n",
+       "      <td>box2d</td>\n",
+       "      <td>C</td>\n",
+       "      <td>7658</td>\n",
+       "      <td>93</td>\n",
+       "      <td>1484</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>15</td>\n",
+       "      <td>jrouwe</td>\n",
+       "      <td>JoltPhysics</td>\n",
+       "      <td>C++</td>\n",
+       "      <td>6198</td>\n",
+       "      <td>42</td>\n",
+       "      <td>398</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>16</td>\n",
+       "      <td>lllyasviel</td>\n",
+       "      <td>stable-diffusion-webui-forge</td>\n",
+       "      <td>Python</td>\n",
+       "      <td>5986</td>\n",
+       "      <td>122</td>\n",
+       "      <td>606</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>17</td>\n",
+       "      <td>versotile-org</td>\n",
+       "      <td>verso</td>\n",
+       "      <td>Rust</td>\n",
+       "      <td>2353</td>\n",
+       "      <td>668</td>\n",
+       "      <td>85</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>18</td>\n",
+       "      <td>LLaVA-VL</td>\n",
+       "      <td>LLaVA-NeXT</td>\n",
+       "      <td>Python</td>\n",
+       "      <td>1785</td>\n",
+       "      <td>52</td>\n",
+       "      <td>105</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>19</td>\n",
+       "      <td>ostris</td>\n",
+       "      <td>ai-toolkit</td>\n",
+       "      <td>Python</td>\n",
+       "      <td>534</td>\n",
+       "      <td>92</td>\n",
+       "      <td>52</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>20</td>\n",
+       "      <td>DroidKaigi</td>\n",
+       "      <td>conference-app-2024</td>\n",
+       "      <td>Kotlin</td>\n",
+       "      <td>214</td>\n",
+       "      <td>32</td>\n",
+       "      <td>86</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    rank          author                       project          language  \\\n",
+       "14     1            twbs                     bootstrap        JavaScript   \n",
+       "9      2        electron                      electron               C++   \n",
+       "11     3        rustdesk                      rustdesk              Rust   \n",
+       "17     4  Stirling-Tools                  Stirling-PDF              Java   \n",
+       "5      5     dani-garcia                   vaultwarden              Rust   \n",
+       "18     6         suno-ai                          bark  Jupyter Notebook   \n",
+       "12     7       NaiboWang                    EasySpider        JavaScript   \n",
+       "10     8        KRTirtho                       spotube              Dart   \n",
+       "3      9       hacksider                 Deep-Live-Cam            Python   \n",
+       "16    10     thingsboard                   thingsboard              Java   \n",
+       "8     11             wez                       wezterm              Rust   \n",
+       "6     12         Raphire                  Win11Debloat        PowerShell   \n",
+       "2     13        shardeum                      shardeum        TypeScript   \n",
+       "7     14       erincatto                         box2d                 C   \n",
+       "13    15          jrouwe                   JoltPhysics               C++   \n",
+       "1     16      lllyasviel  stable-diffusion-webui-forge            Python   \n",
+       "0     17   versotile-org                         verso              Rust   \n",
+       "15    18        LLaVA-VL                    LLaVA-NeXT            Python   \n",
+       "4     19          ostris                    ai-toolkit            Python   \n",
+       "19    20      DroidKaigi           conference-app-2024            Kotlin   \n",
+       "\n",
+       "     stars  stars_today  forks  \n",
+       "14  168588           25  78590  \n",
+       "9   113372          158  15255  \n",
+       "11   70020          174   7836  \n",
+       "17   37600          499   2806  \n",
+       "5    35677           67   1743  \n",
+       "18   34326           49   4052  \n",
+       "12   32421          137   3899  \n",
+       "10   27868          342   1150  \n",
+       "3    20365         3676   2647  \n",
+       "16   16515           10   5003  \n",
+       "8    15927          198    700  \n",
+       "6    10201          409    432  \n",
+       "2     8718         1315    169  \n",
+       "7     7658           93   1484  \n",
+       "13    6198           42    398  \n",
+       "1     5986          122    606  \n",
+       "0     2353          668     85  \n",
+       "15    1785           52    105  \n",
+       "4      534           92     52  \n",
+       "19     214           32     86  "
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Combina as listas de autores, títulos, linguagens, estrelas, estrelas de hoje e forks em uma única lista de tuplas.\n",
+    "# Cada tupla contém os dados de um repositório específico.\n",
+    "conteudo_extraido = list(zip(autores, titulos, languages, stars, stars_today, forks))\n",
+    "\n",
+    "# Cria um DataFrame do Pandas a partir dos dados combinados, com as colunas especificadas.\n",
+    "# As colunas são: 'author', 'project', 'language', 'stars', 'stars_today', e 'forks'.\n",
+    "projects_df = pd.DataFrame(conteudo_extraido, columns=['author','project','language', 'stars', 'stars_today','forks'])\n",
+    "\n",
+    "# Ordena o DataFrame 'projects_df' pela coluna 'stars' em ordem decrescente (do maior para o menor)\n",
+    "projects_df = projects_df.sort_values(by='stars', ascending=False)\n",
+    "\n",
+    "# Adiciona uma nova coluna 'rank' ao DataFrame, que contém a posição de cada repositório.\n",
+    "# O rank é gerado como uma sequência numérica de 1 a 10, correspondendo à posição no trending.\n",
+    "projects_df['rank'] = range(1, 21)\n",
+    "\n",
+    "# Reorganiza as colunas do DataFrame para exibir o rank na primeira posição.\n",
+    "# A nova ordem das colunas é: 'rank', 'author', 'project', 'language', 'stars', 'stars_today', 'forks'.\n",
+    "projects_df = projects_df[['rank','author','project','language', 'stars', 'stars_today','forks']]\n",
+    "\n",
+    "# Exibe o DataFrame resultante, mostrando os dados organizados de forma tabular.\n",
+    "projects_df\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0b147034",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007745,
+     "end_time": "2024-08-13T22:57:11.370824",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.363079",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 5\\. Salvamento\n",
+    "\n",
+    "Por fim, todos os dados tratados e organizados serão salvos em um arquivo CSV, utilizando ponto e vírgula (;) como delimitador entre os campos."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "e0068a79",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-08-13T22:57:11.388735Z",
+     "iopub.status.busy": "2024-08-13T22:57:11.387930Z",
+     "iopub.status.idle": "2024-08-13T22:57:11.396901Z",
+     "shell.execute_reply": "2024-08-13T22:57:11.395795Z"
+    },
+    "papermill": {
+     "duration": 0.020934,
+     "end_time": "2024-08-13T22:57:11.399614",
+     "exception": false,
+     "start_time": "2024-08-13T22:57:11.378680",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Salvar em arquivo csv\n",
+    "projects_df.to_csv('github.csv', sep=';', index=False)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [],
+   "dockerImageVersionId": 30746,
+   "isGpuEnabled": false,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 7.045411,
+   "end_time": "2024-08-13T22:57:11.929147",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2024-08-13T22:57:04.883736",
+   "version": "2.5.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
